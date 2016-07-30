@@ -11,7 +11,7 @@ public class FriendLocation extends BaseModel {
         return location;
     }
 
-    @SerializedName("lat")
+    @SerializedName("data")
 
     private LatLngModel location;
 }
