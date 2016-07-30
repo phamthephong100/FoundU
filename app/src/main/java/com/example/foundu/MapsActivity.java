@@ -2,10 +2,13 @@ package com.example.foundu;
 /**
  * Created by duongthoai on 7/30/16.
  */
+
 import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 import com.android.volley.VolleyError;
 import com.example.foundu.api.APIClient;
@@ -16,6 +19,8 @@ import com.example.foundu.routing.Route;
 import com.example.foundu.routing.RouteException;
 import com.example.foundu.routing.Routing;
 import com.example.foundu.routing.RoutingListener;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,8 +51,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-//        registerUser();
+
 //        getFriendLocation();
+        new GetToken().execute();
     }
 
 
@@ -84,12 +90,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void addMarker(Location location) {
         MarkerOptions markerOption = new MarkerOptions().position(
-                new com.google.android.gms.maps.model.LatLng(location.getLatitude(),location.getLongitude())).title("You're here");
+                new com.google.android.gms.maps.model.LatLng(location.getLatitude(), location.getLongitude())).title("You're here");
         mMap.addMarker(markerOption);
     }
 
     /**
      * get data to draw polyline
+     *
      * @param start
      * @param end
      */
@@ -130,6 +137,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     /**
      * draw poly line
+     *
      * @param route
      */
     public void drawPolyLine(Route route) {
@@ -144,22 +152,51 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         line = mMap.addPolyline(options);
     }
 
-    private void registerUser() {
-        APIClient.registerUser("12342", APIClient.DEVICE_ID, "zzzz", new APIClient.ResponseListener() {
+    private void registerUser(String token) {
+        APIClient.registerUser("0987788681", APIClient.DEVICE_ID, token, new APIClient.ResponseListener() {
             @Override
             public void onSuccess(ApiResponse response) {
-                if(response != null) {
+                if (response != null) {
 
                 }
             }
 
             @Override
             public void onFailed(VolleyError error) {
-                if(error != null) {
+                if (error != null) {
 
                 }
             }
         });
+    }
+    class GetToken extends AsyncTask<Void, Void, String> {
+
+
+        @Override
+        protected String doInBackground(Void... params) {
+            return getDeviceToken();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            registerUser(s);
+        }
+    }
+    private String getDeviceToken() {
+
+        try {
+            InstanceID instanceID = InstanceID.getInstance(this);
+
+            String token = instanceID.getToken("81226496245",
+                    GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+            Log.i("GCM", "GCM Registration Token: " + token);
+            return token;
+
+        } catch (Exception e) {
+            Log.d("GCM", "Failed to complete token refresh", e);
+            return "";
+        }
     }
 
     private void getFriendLocation() {
