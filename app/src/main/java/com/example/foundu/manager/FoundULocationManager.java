@@ -1,5 +1,7 @@
 package com.example.foundu.manager;
-
+/**
+ * Created by duongthoai on 7/30/16.
+ */
 import android.app.Service;
 import android.content.Context;
 import android.location.Criteria;

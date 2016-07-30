@@ -1,5 +1,7 @@
 package com.example.foundu;
-
+/**
+ * Created by duongthoai on 7/30/16.
+ */
 import android.app.Application;
 import android.content.Context;
 

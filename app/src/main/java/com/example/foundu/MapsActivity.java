@@ -1,10 +1,21 @@
 package com.example.foundu;
-
+/**
+ * Created by duongthoai on 7/30/16.
+ */
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
+import com.android.volley.VolleyError;
+import com.example.foundu.api.APIClient;
+import com.example.foundu.api.ApiResponse;
 import com.example.foundu.manager.FoundULocationManager;
+import com.example.foundu.routing.AbstractRouting;
+import com.example.foundu.routing.Route;
+import com.example.foundu.routing.RouteException;
+import com.example.foundu.routing.Routing;
+import com.example.foundu.routing.RoutingListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -12,11 +23,18 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+import java.util.ArrayList;
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, RoutingListener {
 
     private static final int DEFAULT_MAP_ZOOM_LEVEL = 14;
+    private static final int MAP_POLYLINE_WIDTH = 15;
+    public static final String MAP_POLYLINE_COLOR = "#00b3fd";
     private GoogleMap mMap;
+    private Polyline line;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +46,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+//        registerUser();
+        getFriendLocation();
     }
 
 
@@ -66,6 +86,95 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         MarkerOptions markerOption = new MarkerOptions().position(
                 new com.google.android.gms.maps.model.LatLng(location.getLatitude(),location.getLongitude())).title("You're here");
         mMap.addMarker(markerOption);
+    }
+
+    /**
+     * get data to draw polyline
+     * @param start
+     * @param end
+     */
+    public void updateDirections(LatLng start, LatLng end) {
+        if (start == null || end == null) {
+            return;
+        }
+        Routing routing = new Routing.Builder()
+                .travelMode(AbstractRouting.TravelMode.DRIVING)
+                .withListener(this)
+                .alternativeRoutes(true)
+                .waypoints(start, end)
+                .build();
+        routing.execute();
+    }
+
+    @Override
+    public void onRoutingFailure(RouteException e) {
+
+    }
+
+    @Override
+    public void onRoutingStart() {
+
+    }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
+        Route item = route.get(0);
+        //draw line here
+        drawPolyLine(item);
+    }
+
+    @Override
+    public void onRoutingCancelled() {
+
+    }
+
+    /**
+     * draw poly line
+     * @param route
+     */
+    public void drawPolyLine(Route route) {
+
+        PolylineOptions options = new PolylineOptions()
+                .width(MAP_POLYLINE_WIDTH)
+                .color(Color.parseColor(MAP_POLYLINE_COLOR)).geodesic(true);
+        options.addAll(route.getPoints());
+        if (line != null) {
+            line.remove();
+        }
+        line = mMap.addPolyline(options);
+    }
+
+    private void registerUser() {
+        APIClient.registerUser("12342", APIClient.DEVICE_ID, "zzzz", new APIClient.ResponseListener() {
+            @Override
+            public void onSuccess(ApiResponse response) {
+                if(response != null) {
+
+                }
+            }
+
+            @Override
+            public void onFailed(VolleyError error) {
+                if(error != null) {
+
+                }
+            }
+        });
+    }
+
+    private void getFriendLocation() {
+        Location location = FoundULocationManager.getInstance().getCurrentLocation();
+        APIClient.getFriendLocation("user", "friend", String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), new APIClient.ResponseListener() {
+            @Override
+            public void onSuccess(ApiResponse response) {
+
+            }
+
+            @Override
+            public void onFailed(VolleyError error) {
+
+            }
+        });
     }
 }
 
