@@ -5,7 +5,9 @@ import android.content.SharedPreferences;
 
 import com.example.foundu.model.User;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +26,7 @@ public class SessionManager {
         mContext = context;
         pref = mContext.getSharedPreferences("FoundU", Context.MODE_PRIVATE);
         editor = pref.edit();
-        gson  = new Gson();
+        gson = new Gson();
     }
 
     public void saveUserInfo(List<User> users) {
@@ -33,7 +35,20 @@ public class SessionManager {
     }
 
     public List<User> getUserList() {
-         return null;
+        List<User> userList = gson.fromJson(pref.getString(KEY_USER_LIST, null),
+                new TypeToken<List<User>>() {
+                }.getType());
+        if (userList == null) {
+            userList = new ArrayList<>();
+        }
+        return userList;
+    }
+
+    public void addUser(User user) {
+        List<User> users = getUserList();
+        users.add(user);
+        saveUserInfo(users);
+
     }
 
 
