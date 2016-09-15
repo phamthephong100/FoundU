@@ -7,6 +7,11 @@ import com.google.gson.annotations.SerializedName;
  */
 
 public class LatLngModel {
+    public LatLngModel(String lat, String lng) {
+        this.lat = lat;
+        this.lng = lng;
+    }
+
     @SerializedName("lat")
     private String lat;
 

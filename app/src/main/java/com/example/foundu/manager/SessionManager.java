@@ -20,9 +20,17 @@ public class SessionManager {
     private SharedPreferences.Editor editor;
     private Gson gson;
     private static String KEY_USER_LIST = "user_list";
+    private static SessionManager sessionManager;
+
+    public static SessionManager getInstance(Context ctx) {
+        if (sessionManager == null) {
+            sessionManager = new SessionManager(ctx);
+        }
+        return sessionManager;
+    }
 
     // Constructor
-    public SessionManager(Context context) {
+    private SessionManager(Context context) {
         mContext = context;
         pref = mContext.getSharedPreferences("FoundU", Context.MODE_PRIVATE);
         editor = pref.edit();
@@ -49,6 +57,11 @@ public class SessionManager {
         users.add(user);
         saveUserInfo(users);
 
+    }
+
+    public void clearData() {
+        editor.clear();
+        editor.commit();
     }
 
 

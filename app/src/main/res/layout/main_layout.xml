@@ -22,6 +22,7 @@
         android:background="@android:color/darker_gray" />
 
     <ListView
+        android:id="@+id/friend_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/footer"

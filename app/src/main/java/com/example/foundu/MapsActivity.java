@@ -46,14 +46,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_maps);
-        FoundULocationManager.getInstance().startLocationUpdate();
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
 //        getFriendLocation();
-        new GetToken().execute();
+
     }
 
 
@@ -152,66 +152,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         line = mMap.addPolyline(options);
     }
 
-    private void registerUser(String token) {
-        APIClient.registerUser("0987788681", APIClient.DEVICE_ID, token, new APIClient.ResponseListener() {
-            @Override
-            public void onSuccess(ApiResponse response) {
-                if (response != null) {
-
-                }
-            }
-
-            @Override
-            public void onFailed(VolleyError error) {
-                if (error != null) {
-
-                }
-            }
-        });
-    }
-    class GetToken extends AsyncTask<Void, Void, String> {
 
 
-        @Override
-        protected String doInBackground(Void... params) {
-            return getDeviceToken();
-        }
 
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            registerUser(s);
-        }
-    }
-    private String getDeviceToken() {
 
-        try {
-            InstanceID instanceID = InstanceID.getInstance(this);
-
-            String token = instanceID.getToken("81226496245",
-                    GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            Log.i("GCM", "GCM Registration Token: " + token);
-            return token;
-
-        } catch (Exception e) {
-            Log.d("GCM", "Failed to complete token refresh", e);
-            return "";
-        }
-    }
-
-    private void getFriendLocation() {
-        Location location = FoundULocationManager.getInstance().getCurrentLocation();
-        APIClient.getFriendLocation("user", "friend", String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), new APIClient.ResponseListener() {
-            @Override
-            public void onSuccess(ApiResponse response) {
-
-            }
-
-            @Override
-            public void onFailed(VolleyError error) {
-
-            }
-        });
-    }
 }
 
